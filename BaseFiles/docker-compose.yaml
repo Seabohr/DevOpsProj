@@ -6,12 +6,16 @@ services:
         - target: 3306
           published: 3306
           protocol: tcp
+        enviroment:
+        - MYSQL_ROOT_PASSWORD=${PASSWORD}
     backend:
         build: ./backend/
         ports:
         - target: 5001
           published: 5001
           protocol: tcp
+        enviroment:
+        - PASSWORD=${PASSWORD}
     frontend:
         build: ./frontend/
         ports:
