@@ -1,6 +1,6 @@
 pipeline{
 	agent any
-	enviroment{
+	environment{
 		PASSWORD = credentials('DBPW')
 	stages{
 		stage('Build-Installation'){
