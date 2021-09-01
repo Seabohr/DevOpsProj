@@ -1,8 +1,8 @@
 pipeline{
 	agent any
-	environment{
+	environment {
 		PASSWORD = credentials('DBPW')
- 		version=${curl -s 'https://api.github.com/repos/docker/compose/releases/latest' | jq -r ".tag_name"}
+ 		version = "$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r '.tag_name')"
 
 	stages{
 		stage('Build-Installation'){
@@ -22,6 +22,14 @@ pipeline{
 				sh "sudo docker-compose up -d -e ${PASSWORD}"
 		}
 		}
-		}
+		stage ('Test'){
+			steps{
+				sh "sudo apt install python3-pip -y"
+				sh "cd frontend"
+				sh "pip3 install -r requirements.txt"
+				sh "python3 -m pytest --cov application -report html"
+				
+			}
+	}	}
 		}
 		}
