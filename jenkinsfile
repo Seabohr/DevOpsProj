@@ -1,26 +1,26 @@
 pipeline{
-	agent any
-	environment {
-		PASSWORD = credentials('DBPW')
- 	}
-	stages{
-		stage ('Build'){
-			steps{
-				sh 'docker-compose up -d'
-		}
-		}
-		stage ('Test'){
-			steps{
-				sh "sudo apt install python3-pip -y"
-				sh "cd frontend"
-				sh "pip3 install -r requirements.txt"
-				sh "python3 -m pytest --cov application --cov-report html"
-			        sh "cd .."
-				sh "cd backend"
-				sh "pip3 install -r requirements.txt"
-                                sh "python3 -m pytest --cov application --cov-report html"
+        agent any
+        environment {
+                PASSWORD = credentials('DBPW')
+        }
+        stages{
+                stage ('Build'){
+                        steps{
+                    
+                                sh 'docker-compose up -d'
+                                
+                }
+                }
+                stage ('Test'){
+                        steps{
 
-			}
-		}
-		}
-		}
+                                sh "pip3 install -r ./BaseFiles/frontend/requirements.txt"
+                                sh "cd BaseFiles/frontend/ && python3 -m pytest --cov application --cov-report html"
+
+                                sh "pip3 install -r ./BaseFiles/backend/requirements.txt"
+                                sh "cd BaseFiles/backend/ && python3 -m pytest --cov application --cov-report html"
+
+                        }
+                }
+                }
+                }
