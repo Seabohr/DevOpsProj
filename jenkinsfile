@@ -8,6 +8,8 @@ pipeline{
 			steps{
 
 				sh "cd BaseFiles"
+				sh "echo '$(PWD)'"
+				sh "echo '$(ls)'"
 				sh "docker-compose up -d"
 		}
 		}
