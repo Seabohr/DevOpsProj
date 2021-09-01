@@ -2,7 +2,7 @@ pipeline{
 	agent any
 	environment {
 		PASSWORD = credentials('DBPW')
- 	
+ 	}
 	stages{
 		stage ('Build'){
 			steps{
@@ -23,6 +23,6 @@ pipeline{
                                 sh "python3 -m pytest --cov application --cov-report html"
 
 			}
-	}	}
+		}
 		}
 		}
