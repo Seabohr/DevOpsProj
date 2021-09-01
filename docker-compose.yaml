@@ -6,6 +6,9 @@ services:
         - target: 3306
           published: 3306
           protocol: tcp
+        environment:
+          MYSQL_ROOT_PASSWORD: ${PASSWORD}
+
     backend:
         build: ./BaseFiles/backend/
         ports:
