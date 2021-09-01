@@ -1,19 +1,19 @@
 version: "3.8"
 services:
     database:
-        build: ./database/
+        build: ./BaseFiles/database/
         ports:
         - target: 3306
           published: 3306
           protocol: tcp
     backend:
-        build: ./backend/
+        build: ./BaseFiles/backend/
         ports:
         - target: 5001
           published: 5001
           protocol: tcp
     frontend:
-        build: ./frontend/
+        build: ./BaseFiles/frontend/
         ports:
         - target: 5000
           published: 5000
@@ -26,5 +26,5 @@ services:
           protocol: tcp
         volumes:
         - type: bind
-          source: ./nginx.conf
+          source: ./BaseFiles/nginx.conf
           target: /etc/nginx/nginx.conf
