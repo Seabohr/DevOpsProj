@@ -8,7 +8,7 @@ pipeline{
 			steps{
 
 				sh "cd BaseFiles"
-				sh "sudo docker-compose up -d -e ${PASSWORD}"
+				sh "docker-compose up -d"
 		}
 		}
 		stage ('Test'){
