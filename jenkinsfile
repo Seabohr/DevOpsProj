@@ -27,8 +27,8 @@ pipeline{
 		}
 		post {
 			always{
-				archiveArtifacts artifacts: './BaseFiles/frontend/htmlcov/index.html'
-				archiveArtifacts artifacts: './BaseFiles/backend/htmlcov/index.html'
+				archiveArtifacts artifacts: 'BaseFiles/frontend/htmlcov/index.html'
+				archiveArtifacts artifacts: 'BaseFiles/backend/htmlcov/index.html'
 		
 	 }
 		}
