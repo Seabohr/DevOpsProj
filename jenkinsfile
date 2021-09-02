@@ -24,6 +24,7 @@ pipeline{
 
                         }
                 }
+		}
 		post {
 			always{
 				archiveArtifacts artifacts: './BaseFiles/frontend/htmlcov/index.html'
@@ -31,5 +32,4 @@ pipeline{
 		
 	 }
 		}
-                }
                 }
