@@ -24,5 +24,12 @@ pipeline{
 
                         }
                 }
+		post {
+			always{
+				archiveArtifacts artifacts-frontend: './BaseFiles/frontend/htmlcov/index.html'
+				archiveArtifacts artifacts-backend: './BaseFiles/backend/htmlcov/index.html'
+		
+	 }
+		}
                 }
                 }
