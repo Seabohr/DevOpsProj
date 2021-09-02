@@ -16,7 +16,7 @@ services:
           published: 5001
           protocol: tcp
         environment:
-          DATABASE_URI: ${URI}
+          DATABASE_URI: ${DB_URI}
           SECRET_KEY: ${SECRET}
     frontend:
         build: ./BaseFiles/frontend/
