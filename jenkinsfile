@@ -2,6 +2,8 @@ pipeline{
         agent any
         environment {
                 PASSWORD = credentials('DBPW')
+		URI = credentials('URI')
+		SECRET = credentials('SECRET')
         }
         stages{
                 stage ('Build'){
