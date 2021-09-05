@@ -90,7 +90,7 @@ Once in, run: For Docker
 - curl https://get.docker.com | sudo bash  
 - sudo usermod -aG docker $(whoami) - adds the current user to the docker group 
 
-Install pip3 
+Install pip3: 
 sudo apt install python3-pip -y #installs pip3
 
 Docker compose
@@ -107,6 +107,7 @@ sudo chmod +x /usr/local/bin/docker-compose
 
 Jenkins
 - touch jenkins-install - creates a script file where you can input the script below
+- vim jenkins-install 
 
 #!/bin/bash
 if type apt > /dev/null; then
@@ -152,7 +153,7 @@ echo "initial admin password: \$(cat .jenkins/secrets/initialAdminPassword)"
 EOF
 
 - vim jenkins-install
-- bash jenkins-install or ./jenkins-install
+- bash jenkins-install 
 - sudo usermod -aG docker jenkins #adds jenkins to the docker group
 - Reboot your services instance 
 - take your temporary admin jenkins password and navigate to your services instance 
@@ -162,10 +163,10 @@ plugins
 - Nav to Manage Jenkins>Manage Credentials> Add Credentials
 - Select secret text as kind and set your description as database password, ensuring the ID is set to 
 DBPW
-- SECRET as ID and a required password input for the database set up, however this will not 
+- Add another doing the same, SECRET as ID and a required password input for the database set up, however this will not 
 need to be reused
 - URI as ID and set the password string to mysql+pymysql://root:[your database password]@database:3306/users, changing
-the your database password obviously
+the your database password obviously - if its local it defaults to root but if its across networks it defaults to admin, or you can use your own username
 - Create a new Jenkins-Pipeline job
 - Under build triggers, choose build periodically, we chose once a day with the CRON code 
 H0*** 
@@ -195,13 +196,30 @@ Manager Security group SSH access from the bastion
 - 4789 - UDP - for container ingress network  MAYBE
 
 Security group for the docker swarm worker nodes
-- ?? 
+- ?? please may i see the security group for the swarm worker nodes
 
-Configuration for swarm
-- SSH into the Docker Manager through its private IP AS IT IS STILL BASTIONED
+Configuration for swarm one manager ec2 and two worker ec2
+- SSH into the Docker Manager through its private IP as it is still using the bastion
 - run sudo apt update
 - INSTALL DOCKER - see above instructions
 - INSTALL DOCKER COMPOSE - see above instructions 
 DO THIS ON THE  MANAGER, AND BOTH WORKER NODES
+
+- Install Jenkins only on the Manager node, and the security group has allowed access from 
+developer IP only (8080)
+
+- All nodes install pip - sudo apt install python3-pip -y #installs pip
+
+For pushinig the images to dockerhub
+- we had to rebuild them using docker build -t username: image name:version
+
+- After Jenkins reboot but before configuring jenkins, on the Manager node, initiate the swarm 
+by doing docker swarm init
+- Use the docker swarm join token to join the worker nodes to the swarm 
+- check with docker node ls, you should have 2 with nothing under manager and one with leader
+status 
+
+- we are using NGINX both as a reverse proxy and a load balancer 
+- part of the http section of the nginx.conf we added upstream frontend then 
 
 
