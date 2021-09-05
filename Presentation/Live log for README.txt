@@ -83,14 +83,14 @@ ssh-add -L #outputs all keys in agent
 ssh -A USER@BASTION_PUBLIC_IP #The -A flag allows agent forwarding
 ssh USER@PRIVATE_IP 
 
-Once in, run
+Once in, run: For Docker
 - sudo apt update
 - sudo apt install curl jq  -y
 - sudo apt install curl tree -y (optional)
 - curl https://get.docker.com | sudo bash  
 - sudo usermod -aG docker $(whoami) - adds the current user to the docker group 
 
-Install pip3 
+Install pip3: 
 sudo apt install python3-pip -y #installs pip3
 
 Docker compose
@@ -103,11 +103,57 @@ version=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | 
 sudo curl -L "https://github.com/docker/compose/releases/download/${version}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 # make the file executable
 sudo chmod +x /usr/local/bin/docker-compose
+- to check, docker-compose --version
 
 Jenkins
 - touch jenkins-install - creates a script file where you can input the script below
+- vim jenkins-install 
+
+#!/bin/bash
+if type apt > /dev/null; then
+    pkg_mgr=apt
+    java="openjdk-8-jre"
+elif type yum /dev/null; then
+    pkg_mgr=yum
+    java="java"
+fi
+echo "updating and installing dependencies"
+sudo ${pkg_mgr} update
+sudo ${pkg_mgr} install -y ${java} wget git > /dev/null
+echo "configuring jenkins user"
+sudo useradd -m -s /bin/bash jenkins
+echo "downloading latest jenkins WAR"
+sudo su - jenkins -c "curl -L https://updates.jenkins-ci.org/latest/jenkins.war --output jenkins.war"
+echo "setting up jenkins service"
+sudo tee /etc/systemd/system/jenkins.service << EOF > /dev/null
+[Unit]
+Description=Jenkins Server
+
+[Service]
+User=jenkins
+WorkingDirectory=/home/jenkins
+ExecStart=/usr/bin/java -jar /home/jenkins/jenkins.war
+
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo systemctl daemon-reload
+sudo systemctl enable jenkins
+sudo systemctl restart jenkins
+sudo su - jenkins << EOF
+until [ -f .jenkins/secrets/initialAdminPassword ]; do
+    sleep 1
+    echo "waiting for initial admin password"
+done
+until [[ -n "\$(cat  .jenkins/secrets/initialAdminPassword)" ]]; do
+    sleep 1
+    echo "waiting for initial admin password"
+done
+echo "initial admin password: \$(cat .jenkins/secrets/initialAdminPassword)"
+EOF
+
 - vim jenkins-install
-- bash jenkins-install or ./jenkins-install
+- bash jenkins-install 
 - sudo usermod -aG docker jenkins #adds jenkins to the docker group
 - Reboot your services instance 
 - take your temporary admin jenkins password and navigate to your services instance 
@@ -117,10 +163,10 @@ plugins
 - Nav to Manage Jenkins>Manage Credentials> Add Credentials
 - Select secret text as kind and set your description as database password, ensuring the ID is set to 
 DBPW
-- SECRET as ID and a required password input for the database set up, however this will not 
+- Add another doing the same, SECRET as ID and a required password input for the database set up, however this will not 
 need to be reused
 - URI as ID and set the password string to mysql+pymysql://root:[your database password]@database:3306/users, changing
-the your database password obviously
+the your database password obviously - if its local it defaults to root but if its across networks it defaults to admin, or you can use your own username
 - Create a new Jenkins-Pipeline job
 - Under build triggers, choose build periodically, we chose once a day with the CRON code 
 H0*** 
@@ -135,6 +181,45 @@ prompted
 - test reports in there too - screenshots of test reports for both front and backend
 
 Day 4
+
 - Continuity of service- fresh jenkins build required for webpage to run 
+- Going to attempt to use Docker Swarm -
+
+Infrastructure for Docker Swarm
+- Create three new EC2s 
+- t2 small - fine because we will be using load balancing, add to the VPC AND SUBNET AND enable public ip
+Manager Security group SSH access from the bastion
+- HTTP access from anywhere 
+- 8080 for Jenkins but from developer IPs only
+- 2377 - for docker swarm communication
+- 7946 TCP UDP - for container network MAYBE
+- 4789 - UDP - for container ingress network  MAYBE
+
+Security group for the docker swarm worker nodes
+- ?? please may i see the security group for the swarm worker nodes
+
+Configuration for swarm one manager ec2 and two worker ec2
+- SSH into the Docker Manager through its private IP as it is still using the bastion
+- run sudo apt update
+- INSTALL DOCKER - see above instructions
+- INSTALL DOCKER COMPOSE - see above instructions 
+DO THIS ON THE  MANAGER, AND BOTH WORKER NODES
+
+- Install Jenkins only on the Manager node, and the security group has allowed access from 
+developer IP only (8080)
+
+- All nodes install pip - sudo apt install python3-pip -y #installs pip
+
+For pushinig the images to dockerhub
+- we had to rebuild them using docker build -t username: image name:version
+
+- After Jenkins reboot but before configuring jenkins, on the Manager node, initiate the swarm 
+by doing docker swarm init
+- Use the docker swarm join token to join the worker nodes to the swarm 
+- check with docker node ls, you should have 2 with nothing under manager and one with leader
+status 
+
+- we are using NGINX both as a reverse proxy and a load balancer 
+- part of the http section of the nginx.conf we added upstream frontend then 
 
 
