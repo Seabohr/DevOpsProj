@@ -1,0 +1,35 @@
+pipeline{
+        agent any
+        environment {
+                PASSWORD = credentials('DBPW')
+		DB_URI = credentials('URI')
+		SECRET = credentials('SECRET')
+        }
+        stages{
+                stage ('Build'){
+                        steps{
+                    
+                                sh 'docker-compose up -d'
+                                
+                }
+                }
+                stage ('Test'){
+                        steps{
+
+                                sh "pip3 install -r ./BaseFiles/frontend/requirements.txt"
+                                sh "cd BaseFiles/frontend/ && python3 -m pytest --cov application --cov-report html"
+
+                                sh "pip3 install -r ./BaseFiles/backend/requirements.txt"
+                                sh "cd BaseFiles/backend/ && python3 -m pytest --cov application --cov-report html"
+
+                        }
+                }
+		}
+		post {
+			always{
+				archiveArtifacts artifacts: 'BaseFiles/frontend/htmlcov/index.html'
+				archiveArtifacts artifacts: 'BaseFiles/backend/htmlcov/index.html'
+		
+	 }
+		}
+                }

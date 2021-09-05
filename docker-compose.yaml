@@ -1,0 +1,36 @@
+version: "3.8"
+services:
+    database:
+        build: ./BaseFiles/database/
+        ports:
+        - target: 3306
+          published: 3306
+          protocol: tcp
+        environment:
+          MYSQL_ROOT_PASSWORD: ${PASSWORD}
+
+    backend:
+        build: ./BaseFiles/backend/
+        ports:
+        - target: 5001
+          published: 5001
+          protocol: tcp
+        environment:
+          DATABASE_URI: ${DB_URI}
+          SECRET_KEY: ${SECRET}
+    frontend:
+        build: ./BaseFiles/frontend/
+        ports:
+        - target: 5000
+          published: 5000
+          protocol: tcp
+    nginx:
+        image: nginx:latest
+        ports:
+        - target: 80
+          published: 80
+          protocol: tcp
+        volumes:
+        - type: bind
+          source: ./BaseFiles/nginx.conf
+          target: /etc/nginx/nginx.conf
